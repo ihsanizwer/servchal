@@ -8,16 +8,13 @@ terraform {
     }
 }
 
-resource "azurerm_resource_group" "serv-chal-vm-rg" {
-  name     = "${var.vm_resource_group_name}"
-  location = "${var.vm_location}"
-}
+
 
 resource "azurerm_public_ip" "serv-chal-sc-pip" {
-  name                    = "${var.prefix}-pip"
-  location                = azurerm_resource_group.serv-chal-vm-rg.location
-  resource_group_name     = azurerm_resource_group.serv-chal-vm-rg.name
-  allocation_method       = "Dynamic"
+  name                    = "${var.vm_hostname}-pip"
+  location                = "${var.vm_location}"
+  resource_group_name     = "${var.vm_resource_group_name}"
+  allocation_method       = "Static"
   idle_timeout_in_minutes = 30
   count = var.vm_public_ip == true ? 1: 0
 
@@ -25,8 +22,8 @@ resource "azurerm_public_ip" "serv-chal-sc-pip" {
 
 resource "azurerm_network_interface" "serv-chal-sc-nic" {
   name                = "${var.vm_hostname}-nic"
-  location            = azurerm_resource_group.serv-chal-vm-rg.location
-  resource_group_name = azurerm_resource_group.serv-chal-vm-rg.name
+  location            = "${var.vm_location}"
+  resource_group_name = "${var.vm_resource_group_name}"
 
   ip_configuration {
     name                          = "ipconfiguration1"
@@ -38,8 +35,8 @@ resource "azurerm_network_interface" "serv-chal-sc-nic" {
 
 resource "azurerm_virtual_machine" "serv-chal-sc-vm" {
   name                  = "${var.vm_hostname}"
-  location              = azurerm_resource_group.serv-chal-vm-rg.location
-  resource_group_name   = azurerm_resource_group.serv-chal-vm-rg.name
+  location              = "${var.vm_location}"
+  resource_group_name   = "${var.vm_resource_group_name}"
   network_interface_ids = [azurerm_network_interface.serv-chal-sc-nic.id]
   vm_size               = "${var.vm_size}"
 
@@ -74,4 +71,19 @@ resource "azurerm_virtual_machine" "serv-chal-sc-vm" {
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
   }
+
+  zones = var.vm_zone == null? null: [var.vm_zone]
+
+}
+
+resource "local_file" "public_ip" {
+    content  = azurerm_public_ip.serv-chal-sc-pip[0].ip_address
+    filename = "${var.vm_hostname}-public-ip"
+    count = var.vm_public_ip == true ? 1: 0
+}
+
+resource "local_file" "private_ip" {
+    content  = azurerm_network_interface.serv-chal-sc-nic.private_ip_address
+    filename = "${var.vm_hostname}-private-ip"
+
 }

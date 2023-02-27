@@ -37,15 +37,14 @@ variable "vm_os_version" {
   default     = "latest"
 }
 
-variable "vm_resource_group_name" {
-  description = "Resource group for the VM"
-  default     = "serv-chal-vm-rg"
-}
-
 variable "vm_location" {
   description = "Location for the VM"
-  default = "centralus"
 }
+
+variable "vm_resource_group_name" {
+  description = "Resource group for the VM"
+}
+
 
 variable "vm_vnet_subnet_id" {
   description = "Subnet ID for the VM."
@@ -58,4 +57,9 @@ variable "vm_admin_username" {
 
 variable "vm_hostname" {
   description = "hostname of the VM"
+}
+
+variable "vm_zone" {
+  description = "Availability Zone of the VM"
+  default = null
 }
