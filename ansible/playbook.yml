@@ -1,0 +1,38 @@
+---
+- name: Ansible script to configure the app servers and deploy the app as a service
+  hosts:  all
+  serial: 1
+  tasks:
+    - name: Disable SELinux
+
+    - name: Copy the service file
+
+    - name: Copy the config file and the binary
+
+    - name: enable the service
+
+    - name: Seed database
+
+    - name: Copy the nginx installation file
+
+    - name: Run the nginx installation
+
+    - name: Copy the nginx config file
+      notify: 
+        - restart nginx
+
+    - name: Add the firewall rule
+      notify:
+        - reload firewall
+
+    - name: restart machine
+
+  handlers:
+    - name: restart nginx
+      service:  nginx
+        state:  restarted
+    - name: restart firewall
+      service:  firewalld
+        state:  restarted
+
+    

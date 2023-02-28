@@ -17,7 +17,7 @@ terraform {
 
 provider "azurerm" {
   features {
-    resource_group {
+      resource_group {
       prevent_deletion_if_contains_resources = false
     }
   }
@@ -235,6 +235,10 @@ module "jump_server1" {
   vm_public_ip           = true
   vm_ssh_key             = "./jump_serv_id_rsa.pub"
   vm_vnet_subnet_id      = azurerm_subnet.serv-chal-subnet1.id
+  vm_os_offer = "0001-com-ubuntu-server-focal"
+  vm_os_publisher = "Canonical"
+  vm_os_sku = "20_04-lts-gen2"
+  vm_os_version = "latest"
   vm_resource_group_name = var.vm_resource_group_name
   vm_location            = var.vm_location
   depends_on = [
