@@ -1,8 +1,8 @@
-infra/terraform.state
 *.state
-infra/*.state
-infra/terraform.tfstate
+infra/*.tfstate
 infra/terraform.tfstate.backup
 infra/.terraform.lock.hcl
 infra/.terraform/*
 *_id_rsa
+*-private-ip
+*-public-ip
