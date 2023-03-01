@@ -32,4 +32,8 @@
         path: /home/azureuser/servchal/ansible/inventory
         line: "{{ item  }}"
       with_items:  "{{ appserver_ips }}"
+    - name: Disable stricthostkey checking for appservers
+      shell:
+        cmd:  "ssh -o StrictHostKeyChecking=no {{ item }}"
+      with_items: "{{ appserver_ips }}"
 
