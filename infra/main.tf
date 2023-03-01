@@ -81,6 +81,9 @@ resource "azurerm_virtual_network" "serv-chal-vnet" {
   tags = local.common-res-tags
 }
 
+
+
+
 resource "azurerm_subnet" "serv-chal-subnet1" {
   name                 = "${local.app}-subnet1"
   address_prefixes     = ["10.0.1.0/24"]

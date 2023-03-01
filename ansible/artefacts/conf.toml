@@ -5,4 +5,4 @@
 "DbHost" = "localhost"
 "DbType" = "boltdb"
 "ListenHost" = "localhost"
-"ListenPort" = "80"
+"ListenPort" = "3000"

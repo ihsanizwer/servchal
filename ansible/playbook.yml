@@ -3,11 +3,13 @@
   hosts:  all
   serial: 1
   tasks:
-    - name: Disable SELinux
-      lineinfile:
-        path: /etc/selinux/config
-        regexp: '^SELINUX='
-        line: SELINUX=permissive
+    - name: Disable SELinux in config file
+      selinux:
+        state: disabled
+
+    - name: Disable SELinux in current session
+      shell:
+        cmd:  setenforce 0
 
     - name: Copy the script file
       copy:
@@ -16,20 +18,29 @@
 
     - name: Copy the service file
       copy:
-        src:  files/servchal.service
+        src: /home/azureuser/servchal/ansible/files/servchal.service
         dest: /etc/systemd/system
+        owner: root
+        group: root
 
-    - name: Copy the config file and the binary
+    - name: Copy the application binary
       copy:
-        src:  artefacts/TechChallengeApp
+        src:  /home/azureuser/servchal/ansible/artefacts/TechChallengeApp
         dest: /opt
+        owner: root
+        group: root
+        mode: '0700'
 
+    - name: Copy the application config
       copy:
-        src:  artefacts/config.toml
+        src: /home/azureuser/servchal/ansible/artefacts/conf.toml
         dest: /opt
+        owner: root
+        group: root
+        mode: '0700'
 
     - name: enable and start the service
-      service:  
+      service:
         name: servchal
         state:  started
         enabled:  yes
@@ -37,6 +48,7 @@
     - name: Seed database
       shell:
         cmd:  /opt/TechChallengeApp updatedb
+        chdir: /opt/
 
     - name: Copy the nginx installation file
       copy:
@@ -46,6 +58,7 @@
     - name: Run the nginx installation
       shell:
         cmd:  rpm -ivh nginx-1.22.1-1.el8.ngx.x86_64.rpm
+      ignore_errors:  true
 
     - name: Copy the nginx config file
       copy:
@@ -63,17 +76,13 @@
       notify:
         - reload firewall
 
-    - name: restart machine
-      reboot:
-        reboot_timeout: 600
-
 
   handlers:
     - name: restart nginx
       service:  
         name: nginx
         state:  restarted
-    - name: restart firewall
+    - name: reload firewall
       service:  
         name: firewalld
         state:  restarted

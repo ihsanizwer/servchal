@@ -4,3 +4,5 @@ Restart=always
 User=root
 Group=root
 WorkingDirectory=/opt/
+[Install]
+WantedBy=multi-user.target
