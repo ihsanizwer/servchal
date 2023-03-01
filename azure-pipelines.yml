@@ -1,0 +1,155 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - '*'
+  paths:
+    exclude:
+      - README.md
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - README.md
+      - .gitignore
+      - LICENSE
+
+variables:
+- name: applyBranch
+  value:  $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+- name: tfWorkingDir
+  value:  infra
+- name: ansibleWorkingDir
+  value: ansible
+- name: terraformVersion
+  value: 1.3.9
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: update_shared_values
+  displayName: "Update required variable values"
+  jobs:
+    - job: update_conf
+      displayName: "Update conf toml"
+    - job: update_db
+      displayName: "Update db details"
+
+- stage: tf_plan
+  displayName: "Terraform plan"
+  jobs:
+    - job: plan
+      parameters:
+        serviceConnectionName: ""
+        environment: "prod"
+        terraformVersion: ${{ variables.terraformVersion }}
+        tfWorkingDirectory: ${{ variables.tfWorkingDir }}
+      steps:
+        - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
+          displayName: "Use Terraform latest"
+          inputs:
+            terraformVersion: "${{ parameters.terraformVersion }}"
+
+        - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+          displayName: "Terraform format"
+          inputs:
+            command: fmt
+            workingDirectory: "$(System.DefaultWorkingDirectory)/${{ parameters.tfWorkingDirectory }}"
+            commandOptions: "-write=false -diff -recursive"
+
+        - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+          displayName: "Terraform Init"
+          inputs:
+            command: init
+            workingDirectory: "$(System.DefaultWorkingDirectory)/${{ parameters.tfWorkingDirectory }}"
+            commandOptions: "-reconfigure"
+            backendType: local
+
+        - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+          displayName: "Terraform validate"
+          inputs:
+            workingDirectory: "$(System.DefaultWorkingDirectory)/${{ parameters.tfWorkingDirectory }}"
+
+        - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+          displayName: "Terraform Plan"
+          inputs:
+            command: plan
+            workingDirectory: "$(System.DefaultWorkingDirectory)/${{ parameters.tfWorkingDirectory }}"
+            environmentServiceName: "${{ parameters.serviceConnectionName }}"
+            runAzLogin: true
+            commandOptions: '-input=false -out="$(Build.ArtifactStagingDirectory)/tfplan-${{ parameters.environment }}"'
+            publishPlanResults: "tfplan-${{ parameters.environment }}"
+        - task: PublishBuildArtifacts@1
+          displayName: "Publish Artifact: tfplan"
+          inputs:
+            PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+            ArtifactName: tfplan-out
+    - job: approveplan
+      dependsOn: plantf
+      pool: server
+      timeoutInMinutes: 30
+      steps:
+        - task: ManualValidation@0
+          inputs:
+            instructions: "Review Terraform plan"
+            notifyUsers: ''
+            onTimeout:  reject
+
+
+- stage: tf_apply
+  displayName:  "Terraform Apply"
+  dependsOn: tf_plan
+  condition: | 
+    and(
+      succeeded(), eq(variables.applyBranch, 'true')
+      )
+  jobs:
+    - job: apply
+      parameters:
+        serviceConnectionName: ""
+        terraformVersion: ${{ variables.terraformVersion }}
+        environment: "prod"
+        tfWorkingDirectory: ${{ variables.tfWorkingDirectory }}
+      steps:
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifact: 'tfplan-out'
+            path: $(System.DefaultWorkingDirectory)
+  
+        - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
+          displayName: 'Use Terraform latest'
+          inputs:
+            terraformVersion: '${{ parameters.terraformVersion }}'
+  
+        - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+          displayName: 'Terraform Init'
+          inputs:
+            command: init
+            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.tfWorkingDirectory }}'
+            commandOptions: '-reconfigure'
+            backendType: local
+
+        - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+          displayName: 'Terraform Apply'
+          inputs:
+            command: apply
+            workingDirectory: '$(System.DefaultWorkingDirectory)/${{ parameters.tfWorkingDirectory }}'
+            environmentServiceName: '${{ parameters.serviceConnectionName }}'
+            runAzLogin: true
+            commandOptions: '$(System.DefaultWorkingDirectory)/tfplan-${{ parameters.environment }}"'
+
+- stage: setup_jumphost
+  displayName:  "Setting up Jumphost"
+
+- stage: deploy_application
+  displayName:  "Deploying Application"
+
+- stage: cleanup
+  displayName:  "Cleaning up"
