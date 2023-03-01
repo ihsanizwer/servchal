@@ -4,35 +4,78 @@
   serial: 1
   tasks:
     - name: Disable SELinux
+      lineinfile:
+        path: /etc/selinux/config
+        regexp: '^SELINUX='
+        line: SELINUX=permissive
+
+    - name: Copy the script file
+      copy:
+        src:  files/runChallenge.sh
+        dest: /opt/
 
     - name: Copy the service file
+      copy:
+        src:  files/servchal.service
+        dest: /etc/systemd/system
 
     - name: Copy the config file and the binary
+      copy:
+        src:  artefacts/TechChallengeApp
+        dest: /opt
 
-    - name: enable the service
+      copy:
+        src:  artefacts/config.toml
+        dest: /opt
+
+    - name: enable and start the service
+      service:  
+        name: servchal
+        state:  started
+        enabled:  yes
 
     - name: Seed database
+      shell:
+        cmd:  /opt/TechChallengeApp updatedb
 
     - name: Copy the nginx installation file
+      copy:
+        src:  files/nginx-1.22.1-1.el8.ngx.x86_64.rpm
+        dest: ~/nginx-1.22.1-1.el8.ngx.x86_64.rpm
 
     - name: Run the nginx installation
+      shell:
+        cmd:  rpm -ivh nginx-1.22.1-1.el8.ngx.x86_64.rpm
 
     - name: Copy the nginx config file
+      copy:
+        src:  files/nginx_default.conf
+        dest: etc/nginx/conf.d/default.conf
       notify: 
         - restart nginx
 
     - name: Add the firewall rule
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+
       notify:
         - reload firewall
 
     - name: restart machine
+      reboot:
+        reboot_timeout: 600
+
 
   handlers:
     - name: restart nginx
-      service:  nginx
+      service:  
+        name: nginx
         state:  restarted
     - name: restart firewall
-      service:  firewalld
+      service:  
+        name: firewalld
         state:  restarted
 
     
