@@ -1,0 +1,32 @@
+---
+- name: Ansible script to setup the jump host
+  hosts: jumphosts
+  vars:
+    appserver_ips: 
+    - "{{lookup('ansible.builtin.file', '../infra/appserver01-private-ip') }}"
+    - "{{lookup('ansible.builtin.file', '../infra/appserver02-private-ip') }}"    
+  tasks:
+    - name: Set proper DNS
+      lineinfile:
+        path: /etc/resolv.conf
+        regexp: '^nameserver'
+        line: nameserver 168.63.129.16
+    - name: Install Ansible
+      yum:
+        name: ansible
+        state: present
+    - name: Clone the repo
+      git:
+        repo: 'https://github.com/ihsanizwer/servchal.git'
+        dest: /home/azureuser/servchal
+    - name: Copy the App Server private key to the jumpserver
+      copy:
+        src:  app_serv_id_rsa
+        dest: /home/azureuser/servchal/app_serv_id_rsa
+        mode: '0400'
+    - name: Populate the inventory with the appserver hosts
+      lineinfile:
+        path: /home/azureuser/servchal/ansible/inventory
+        line: "{{ item  }}"
+      with_items:  "{{ appserver_ips }}"
+

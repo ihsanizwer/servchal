@@ -28,7 +28,7 @@ resource "azurerm_network_interface" "serv-chal-sc-nic" {
   ip_configuration {
     name                          = "ipconfiguration1"
     subnet_id                     = "${var.vm_vnet_subnet_id}"
-    private_ip_address_allocation = "Static"
+    private_ip_address_allocation = "Dynamic"
     public_ip_address_id = var.vm_public_ip == true ? azurerm_public_ip.serv-chal-sc-pip[0].id: null
   }
 }
