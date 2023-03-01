@@ -12,18 +12,21 @@
         regexp: '^nameserver'
         line: nameserver 168.63.129.16
     - name: Install Ansible
-      yum:
+      apt:
         name: ansible
         state: present
+        update_cache: yes
     - name: Clone the repo
       git:
         repo: 'https://github.com/ihsanizwer/servchal.git'
         dest: /home/azureuser/servchal
+      become: false
     - name: Copy the App Server private key to the jumpserver
       copy:
         src:  app_serv_id_rsa
         dest: /home/azureuser/servchal/app_serv_id_rsa
         mode: '0400'
+      become: false
     - name: Populate the inventory with the appserver hosts
       lineinfile:
         path: /home/azureuser/servchal/ansible/inventory

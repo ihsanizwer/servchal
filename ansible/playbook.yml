@@ -13,8 +13,11 @@
 
     - name: Copy the script file
       copy:
-        src:  files/runChallenge.sh
+        src:  /home/azureuser/servchal/ansible/files/runChallenge.sh
         dest: /opt/
+        owner: root
+        group: root
+        mode: '0700'
 
     - name: Copy the service file
       copy:
@@ -35,9 +38,7 @@
       copy:
         src: /home/azureuser/servchal/ansible/artefacts/conf.toml
         dest: /opt
-        owner: root
-        group: root
-        mode: '0700'
+
 
     - name: enable and start the service
       service:
@@ -52,18 +53,18 @@
 
     - name: Copy the nginx installation file
       copy:
-        src:  files/nginx-1.22.1-1.el8.ngx.x86_64.rpm
-        dest: ~/nginx-1.22.1-1.el8.ngx.x86_64.rpm
+        src:  /home/azureuser/servchal/ansible/files/nginx-1.22.1-1.el8.ngx.x86_64.rpm
+        dest: /tmp/nginx-1.22.1-1.el8.ngx.x86_64.rpm
 
     - name: Run the nginx installation
       shell:
-        cmd:  rpm -ivh nginx-1.22.1-1.el8.ngx.x86_64.rpm
+        cmd:  rpm -ivh /tmp/nginx-1.22.1-1.el8.ngx.x86_64.rpm
       ignore_errors:  true
 
     - name: Copy the nginx config file
       copy:
-        src:  files/nginx_default.conf
-        dest: etc/nginx/conf.d/default.conf
+        src:  /home/azureuser/servchal/ansible/files/default_nginx.conf
+        dest: /etc/nginx/conf.d/default.conf
       notify: 
         - restart nginx
 
@@ -82,9 +83,10 @@
       service:  
         name: nginx
         state:  restarted
+        enabled: yes
     - name: reload firewall
       service:  
         name: firewalld
         state:  restarted
-
+        enabled: yes
     
