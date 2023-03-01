@@ -20,6 +20,7 @@
       git:
         repo: 'https://github.com/ihsanizwer/servchal.git'
         dest: /home/azureuser/servchal
+        update: no
       become: false
     - name: Copy the App Server private key to the jumpserver
       copy:
@@ -32,8 +33,16 @@
         path: /home/azureuser/servchal/ansible/inventory
         line: "{{ item  }}"
       with_items:  "{{ appserver_ips }}"
-    - name: Disable stricthostkey checking for appservers
+    - name: Disable stricthostkey checking for appservers as default user
       shell:
         cmd:  "ssh -o StrictHostKeyChecking=no {{ item }}"
       with_items: "{{ appserver_ips }}"
+      ignore_errors: true
+      become: false
+
+    - name: Disable stricthostkey checking for appservers as super user
+      shell:
+        cmd:  "ssh -o StrictHostKeyChecking=no {{ item }}"
+      with_items: "{{ appserver_ips }}"
+      ignore_errors: true
 
