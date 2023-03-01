@@ -47,7 +47,7 @@ stages:
   jobs:
     - job: plan
       parameters:
-        serviceConnectionName: ""
+        serviceConnectionName: "Azure subscription 1"
         environment: "prod"
         terraformVersion: ${{ variables.terraformVersion }}
         tfWorkingDirectory: ${{ variables.tfWorkingDir }}
@@ -113,7 +113,7 @@ stages:
   jobs:
     - job: apply
       parameters:
-        serviceConnectionName: ""
+        serviceConnectionName: "Azure subscription 1"
         terraformVersion: ${{ variables.terraformVersion }}
         environment: "prod"
         tfWorkingDirectory: ${{ variables.tfWorkingDirectory }}
