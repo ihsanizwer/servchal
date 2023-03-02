@@ -157,7 +157,6 @@ stages:
   jobs:
     - job: disable_host_key_checking
       displayName: "Disable hostkeychecking"
-      dependsOn: startsetup
       steps:
       - task: Bash@3
         inputs:
@@ -165,7 +164,6 @@ stages:
           script: 'ssh -o StrictHostKeyChecking=no $(cat servchal/infra/jumpserver01-private-ip)'
         continueOnError: true
     - job: create_pv_key_files
-      dependsOn: startsetup
       variables:
       - group: servchal-keys
       steps:
@@ -175,7 +173,6 @@ stages:
            echo $APPKEY >> servchal/ansible/app_serv_id_rsa
            chmod 0400 servchal/ansible/app_serv_id_rsa
     - job: populate_inventory
-      dependsOn: startsetup
       steps:
         - script: |
            echo "[jumpservers]" >> servchal/ansible/inventory
@@ -184,7 +181,6 @@ stages:
       dependsOn:
        - disable_host_key_checking
        - create_pv_key_files
-       - startsetup
       displayName: "Running ansible playbook to setup the jumphost"
       steps:
       - task: Bash@3
