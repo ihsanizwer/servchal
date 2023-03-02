@@ -199,7 +199,7 @@ stages:
         displayName: "Disable hostkeychecking"
         inputs:
           targetType: 'inline'
-          script: 'ssh -o StrictHostKeyChecking=no $(cat jumpserver01-private-ip)'
+          script: 'ssh -o StrictHostKeyChecking=no $(cat jumpserver01-public-ip)'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
         continueOnError: true
 
@@ -210,7 +210,7 @@ stages:
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
         displayName: "Creating Key files"
       - script: |
-           echo "[jumpservers]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
+           echo "[jumphosts]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
            cat jumpserver01-public-ip >> $(System.DefaultWorkingDirectory)/ansible/inventory
         displayName: "Updating inventory with JumpserverIP"
       - task: Bash@3
