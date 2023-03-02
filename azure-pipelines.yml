@@ -213,7 +213,8 @@ stages:
            echo "[jumphosts]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
            jumpip=$(cat jumpserver01-public-ip) 
            echo "${jumpip}">> $(System.DefaultWorkingDirectory)/ansible/inventory
-           echo "${jumpip} ansible_user=azureuser" >> /etc/ansible/hosts
+           jumploc="$(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa"
+           echo "ansible_ssh_private_key_file=${jumploc}"
 
         displayName: "Updating inventory with JumpserverIP"
       - task: Bash@3
