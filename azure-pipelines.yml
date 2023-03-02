@@ -152,40 +152,51 @@ stages:
             commandOptions: '$(System.DefaultWorkingDirectory)/tfplan-${{ parameters.environment }}"'
 
 - stage: setup_jumphost
-  dependsOn: tf_apply
-  condition: succeeded()
   displayName:  "Setting up Jumphost"
   jobs:
+    - job: startsetup
+      steps:
+      - task: ManualValidation@0
+        inputs:
+          notifyUsers: ''
+          onTimeout: 'reject'
     - job: disable_host_key_checking
       displayName: "Disable hostkeychecking"
+      dependsOn: startsetup
       steps:
       - task: Bash@3
         inputs:
           targetType: 'inline'
-          script: 'ssh -o StrictHostKeyChecking=no `cat infra/jumpserver01-private-ip`'
+          script: 'ssh -o StrictHostKeyChecking=no $(cat servchal/infra/jumpserver01-private-ip)'
         continueOnError: true
     - job: create_pv_key_files
+      dependsOn: startsetup
       variables:
       - group: servchal-keys
       steps:
         - script: |
-           echo $JUMPKEY >> ansible/jump_serv_id_rsa
-           chmmod 0400 ansible/jump_serv_id_rsa
-           echo $APPKEY >> ansible/app_serv_id_rsa
-           chmmod 0400 ansible/app_serv_id_rsa
+           echo $JUMPKEY >> servchal/ansible/jump_serv_id_rsa
+           chmod 0400 servchal/ansible/jump_serv_id_rsa
+           echo $APPKEY >> servchal/ansible/app_serv_id_rsa
+           chmod 0400 servchal/ansible/app_serv_id_rsa
     - job: populate_inventory
+      dependsOn: startsetup
       steps:
         - script: |
-           echo "[jumpservers]" >> ansible/inventory
-           cat infra/jumpserver01-public-ip >> ansible/inventory
+           echo "[jumpservers]" >> servchal/ansible/inventory
+           cat infra/jumpserver01-public-ip >> servchal/ansible/inventory
     - job: run_ansible_setup
+      dependsOn:
+       - disable_host_key_checking
+       - create_pv_key_files
+       - startsetup
       displayName: "Running ansible playbook to setup the jumphost"
       steps:
       - task: Bash@3
         inputs:
           targetType: 'inline'
           script: 'ansible-playbook setupjump.yml --extra-vars ansible_ssh_private_key_file=jump_serv_id_rsa --extra-vars ansible_user=azureuser'
-          workingDirectory: 'ansible'
+          workingDirectory: 'servchal/ansible'
 
 - stage: deploy_application
   displayName:  "Deploying Application"
@@ -202,6 +213,7 @@ stages:
            #ssh -i ansible/jump_serv_id_rsa azureuser@"${jumpip}" echo $appserv2ip >> /home/azureuser/servchal/ansible/inventory
            ssh -i ansible/jump_serv_id_rsa azureuser@"${jumpip}" ansible-playbook /home/azureuser/servchal/ansible/playbook.yml --extra-vars ansible_ssh_private_key_file=/home/azureuser/servchal/ansible/app_serv_id_rsa --extra-vars ansible_user=azureuser
     - job: clean_up
+      dependsOn: deploy_app
       steps:
         - script: |
            jumpip=`cat infra/jumpserver01-public-ip`
