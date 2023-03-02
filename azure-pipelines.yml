@@ -212,6 +212,8 @@ stages:
       - script: |
            echo "[jumphosts]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
            cat jumpserver01-public-ip >> $(System.DefaultWorkingDirectory)/ansible/inventory
+           echo "[jumphosts:vars]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
+           echo "ansible_user=azureuser" >> $(System.DefaultWorkingDirectory)/ansible/inventory
         displayName: "Updating inventory with JumpserverIP"
       - task: Bash@3
         displayName: "Running ansible playbook to setup the jumphost"
