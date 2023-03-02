@@ -38,9 +38,9 @@ parameters:
 - name: environment
   default: prod
 - name: terraformVersion
-  default: ${{ variables.terraformVersion }}
+  default: 1.3.9
 - name: tfWorkingDirectory
-  default: ${{ variables.tfWorkingDir }}
+  default: infra
 
 pool:
   vmImage: ubuntu-latest
