@@ -1,6 +1,7 @@
 ---
 - name: Ansible script to setup the jump host
   hosts: jumphosts
+  remote_user: azureuser
   vars:
     appserver_ips: 
     - "{{lookup('ansible.builtin.file', '../infra/appserver01-private-ip') }}"
