@@ -150,6 +150,25 @@ stages:
             environmentServiceName: '${{ parameters.serviceConnectionName }}'
             runAzLogin: true
             commandOptions: '$(System.DefaultWorkingDirectory)/tfplan-${{ parameters.environment }}"'
+        
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(System.DefaultWorkingDirectory)/infra/appserver01-private-ip'
+            ArtifactName: 'appserver01-private-ip'
+            publishLocation: 'Container'
+            
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(System.DefaultWorkingDirectory)/infra/appserver02-private-ip'
+            ArtifactName: 'appserver02-private-ip'
+            publishLocation: 'Container'
+
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(System.DefaultWorkingDirectory)/infra/jumpserver01-public-ip'
+            ArtifactName: 'jumpserver01-public-ip'
+            publishLocation: 'Container'
+        
 
 - stage: setup_jumphost
   dependsOn: tf_apply
@@ -172,15 +191,37 @@ stages:
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            echo $APPKEY >> $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
+    - job: get_all_ips
+      steps:
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          artifactName: 'jumpserver01-public-ip'
+          targetPath: '$(System.DefaultWorkingDirectory)'
+
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          artifactName: 'appserver01-private-ip'
+          targetPath: '$(System.DefaultWorkingDirectory)/infra' 
+
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: 'current'
+          artifactName: 'appserver02-private-ip'
+          targetPath: '$(System.DefaultWorkingDirectory)/infra'         
+      
     - job: populate_inventory
       steps:
         - script: |
            echo "[jumpservers]" >> $(System.DefaultWorkingDirectory)/servchal/ansible/inventory
-           cat infra/jumpserver01-public-ip >> $(System.DefaultWorkingDirectory)/ansible/inventory
+           cat jumpserver01-public-ip >> $(System.DefaultWorkingDirectory)/servchal/ansible/inventory
     - job: run_ansible_setup
       dependsOn:
        - disable_host_key_checking
        - create_pv_key_files
+       - get_all_ips
+      condition: succeeded()
       displayName: "Running ansible playbook to setup the jumphost"
       steps:
       - task: Bash@3
@@ -197,8 +238,8 @@ stages:
     - job: deploy_app
       steps:
         - script: |
-           jumpip=$(cat $(System.DefaultWorkingDirectory)/infra/jumpserver01-public-ip)
-           #appserv1ip=`cat infra/appserver01-private-ip`
+           jumpip=$(cat $(System.DefaultWorkingDirectory)/jumpserver01-public-ip)
+           #appserv1ip=`cat infra/
            #appserv2ip=`cat infra/appserver02-private-ip`
            #ssh -i ansible/jump_serv_id_rsa azureuser@"${jumpip}" echo $appserv1ip >> /home/azureuser/servchal/ansible/inventory
            #ssh -i ansible/jump_serv_id_rsa azureuser@"${jumpip}" echo $appserv2ip >> /home/azureuser/servchal/ansible/inventory
