@@ -1,20 +1,20 @@
-variable "vm_public_ip"{
-    description = "whether to assign public IP or not. If true assign. Else dont"
-    default = "false"
+variable "vm_public_ip" {
+  description = "whether to assign public IP or not. If true assign. Else dont"
+  default     = "false"
 }
 
-variable "vm_ssh_key"{
-    description = "The SSH key to use to set for the VM"
+variable "vm_ssh_key" {
+  description = "The SSH key to use to set for the VM"
 }
 
-variable "prefix"{
-    description = "The SSH key to use to set for the VM"
-    default = "serv-chal"
+variable "prefix" {
+  description = "The SSH key to use to set for the VM"
+  default     = "serv-chal"
 }
 
 variable "vm_size" {
   description = "VM Size"
-  default = "Standard_B1s"
+  default     = "Standard_B1s"
 }
 
 variable "vm_os_publisher" {
@@ -61,6 +61,6 @@ variable "vm_hostname" {
 
 variable "vm_zone" {
   description = "Availability Zone of the VM"
-  default = null
+  default     = null
 }
 
