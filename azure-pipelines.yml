@@ -156,10 +156,11 @@ stages:
   jobs:
     - job: startsetup
       steps:
-      - task: ManualValidation@0
-        inputs:
-          notifyUsers: ''
-          onTimeout: 'reject'
+        - task: ManualValidation@0
+          inputs:
+            instructions: "Confirm to start setup"
+            notifyUsers: ''
+            onTimeout:  reject
     - job: disable_host_key_checking
       displayName: "Disable hostkeychecking"
       dependsOn: startsetup
