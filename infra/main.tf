@@ -216,20 +216,7 @@ resource "azurerm_network_security_rule" "allow-appserver1-to-db" {
   network_security_group_name = azurerm_network_security_group.serv-chal-pvt-db-nsg.name
 }
 
-#resource "azurerm_network_security_rule" "allow-ssh-to-dbservers" {
-#  name                        = "allow-ssh-to-dbservers"
-#  priority                    = 300
-#  direction                   = "Inbound"
-#  access                      = "Allow"
-#  protocol                    = "Tcp"
-#  source_port_range           = "*"
-#  destination_port_range      = "22"
-#  source_address_prefix       = "10.0.1.0/24"
-#  destination_address_prefix  = "10.0.3.0/24"
-#  resource_group_name         = azurerm_resource_group.serv-chal-net-rg.name
-#  network_security_group_name = azurerm_network_security_group.serv-chal-pvt-db-nsg.name
-#}
-#Commented above as using managed postgresql
+
 
 #Creating Jump Server With Public IP
 module "jump_server1" {
@@ -377,7 +364,7 @@ locals {
 
 }
 
-resource "azurerm_application_gateway" "network" {
+/*resource "azurerm_application_gateway" "network" {
   name                = "example-appgateway"
   resource_group_name = azurerm_resource_group.serv-chal-net-rg.name
   location            = azurerm_resource_group.serv-chal-net-rg.location
@@ -489,4 +476,4 @@ resource "azurerm_network_interface_application_gateway_backend_address_pool_ass
   ip_configuration_name   = "ipconfiguration1"
   backend_address_pool_id = tolist(azurerm_application_gateway.network.backend_address_pool).0.id
 }
-
+*/
