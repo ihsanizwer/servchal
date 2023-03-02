@@ -364,7 +364,7 @@ locals {
 
 }
 
-/*resource "azurerm_application_gateway" "network" {
+resource "azurerm_application_gateway" "network" {
   name                = "example-appgateway"
   resource_group_name = azurerm_resource_group.serv-chal-net-rg.name
   location            = azurerm_resource_group.serv-chal-net-rg.location
@@ -476,4 +476,4 @@ resource "azurerm_network_interface_application_gateway_backend_address_pool_ass
   ip_configuration_name   = "ipconfiguration1"
   backend_address_pool_id = tolist(azurerm_application_gateway.network.backend_address_pool).0.id
 }
-*/
+
