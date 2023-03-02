@@ -103,7 +103,7 @@ stages:
             PathtoPublish: "$(Build.ArtifactStagingDirectory)"
             ArtifactName: tfplan-out
     - job: approveplan
-      dependsOn: plantf
+      dependsOn: plan
       pool: server
       timeoutInMinutes: 30
       steps:
