@@ -21,6 +21,6 @@ variable "db_pass" {
 
 variable "db_name" {
   description = "Name of the database"
-  default     = "somerandomdbbname12882345"
+  default     = "somerandomdbbname128823495"
 }
 
