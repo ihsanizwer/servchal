@@ -216,19 +216,17 @@ stages:
            cp  $(jumpserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            chown $USER:USER $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
-           cat $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa 
+ 
            cp  $(appserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
-           cat $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa 
+
         displayName: "Creating Key files"
 
       - script: |
            echo "[jumphosts]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
            jumpip=$(cat jumpserver01-public-ip) 
-           echo "${jumpip}">> $(System.DefaultWorkingDirectory)/ansible/inventory
+           echo "${jumpip} ansible_user=azure_user">> $(System.DefaultWorkingDirectory)/ansible/inventory
            jumploc="$(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa"
-           echo $jumploc
-           cat $jumploc
            echo "ansible_ssh_private_key_file=${jumploc}" >> $(System.DefaultWorkingDirectory)/ansible/ansible.cfg
 
         displayName: "Updating inventory with JumpserverIP"
@@ -236,7 +234,7 @@ stages:
         displayName: "Running ansible playbook to setup the jumphost"
         inputs:
           targetType: 'inline'
-          script: 'ansible-playbook setupjump.yml'
+          script: 'ansible-playbook -vvvv setupjump.yml'
           workingDirectory: '$(System.DefaultWorkingDirectory)/ansible'
 
 - stage: deploy_application
