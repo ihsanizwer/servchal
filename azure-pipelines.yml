@@ -211,7 +211,7 @@ stages:
         displayName: "Creating Key files"
       - script: |
            echo "[jumphosts]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
-           jumpip$(cat jumpserver01-public-ip) 
+           jumpip=$(cat jumpserver01-public-ip) 
            echo "jumpserver01 ansible_host=${jumpip} ansible_user=azureuser">> $(System.DefaultWorkingDirectory)/ansible/inventory
 
         displayName: "Updating inventory with JumpserverIP"
