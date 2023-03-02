@@ -87,3 +87,4 @@ resource "local_file" "private_ip" {
     filename = "${var.vm_hostname}-private-ip"
 
 }
+

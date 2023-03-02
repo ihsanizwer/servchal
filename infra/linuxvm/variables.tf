@@ -63,3 +63,4 @@ variable "vm_zone" {
   description = "Availability Zone of the VM"
   default = null
 }
+
