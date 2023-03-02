@@ -202,13 +202,26 @@ stages:
           script: 'ssh -o StrictHostKeyChecking=no $(cat jumpserver01-public-ip)'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
         continueOnError: true
+      - task: DownloadSecureFile@1
+        name: jumpserverkey
+        inputs:
+          secureFile: 'jump_serv_id_rsa'
+      - task: DownloadSecureFile@1
+        name: appserverkey
+        inputs:
+          secureFile: 'app_serv_id_rsa'
 
       - script: |
-           echo $JUMPKEY >> $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
+           echo "Copying secure file to a secure location"
+           cp  $(jumpserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
-           echo $APPKEY >> $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
+           chown $USER:USER $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
+           cat $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa 
+           cp  $(appserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
+           cat $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa 
         displayName: "Creating Key files"
+
       - script: |
            echo "[jumphosts]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
            jumpip=$(cat jumpserver01-public-ip) 
