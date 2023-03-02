@@ -214,6 +214,8 @@ stages:
            jumpip=$(cat jumpserver01-public-ip) 
            echo "${jumpip}">> $(System.DefaultWorkingDirectory)/ansible/inventory
            jumploc="$(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa"
+           echo $jumploc
+           cat $jumploc
            echo "ansible_ssh_private_key_file=${jumploc}"
 
         displayName: "Updating inventory with JumpserverIP"
