@@ -1,6 +1,6 @@
 "DbUser" = "postgres"
-"DbPassword" = "changeme"
-"DbName" = "app"
+"DbPassword" = "#{PgDBPwd}#"
+"DbName" = "#{PgDBName}#"
 "DbPort" = "5432"
 "DbHost" = "localhost"
 "DbType" = "boltdb"
