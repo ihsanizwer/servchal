@@ -232,7 +232,7 @@ stages:
 
         displayName: "Updating inventory with JumpserverIP"
       - script: |
-            $(System.DefaultWorkingDirectory)/ansible/ansible-playbook -vvvv setupjump.yml --extra-vars="ansible_ssh_private_key_file=$(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa"
+            ansible/ansible-playbook -vvvv setupjump.yml --extra-vars="ansible_ssh_private_key_file=ansible/app_serv_id_rsa"
         displayName: "Running ansible playbook to setup the jumphost"
  
 
