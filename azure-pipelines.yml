@@ -229,10 +229,11 @@ stages:
            echo "${jumpip} ansible_user=azureuser">> $(System.DefaultWorkingDirectory)/ansible/inventory
            jumploc="$(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa"
            echo "ansible_ssh_private_key_file=${jumploc}" >> $(System.DefaultWorkingDirectory)/ansible/ansible.cfg
-
         displayName: "Updating inventory with JumpserverIP"
+        
       - script: |
-            ansible/ansible-playbook -vvvv setupjump.yml --extra-vars="ansible_ssh_private_key_file=ansible/app_serv_id_rsa"
+            ansible-playbook -vvvv setupjump.yml --extra-vars="ansible_ssh_private_key_file=jump_serv_id_rsa"
+        workingDirectory: $(System.DefaultWorkingDirectory)/ansible
         displayName: "Running ansible playbook to setup the jumphost"
  
 
