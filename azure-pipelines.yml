@@ -43,7 +43,7 @@ parameters:
   default: infra
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: ubuntu-20.04
 
 stages:
 #- stage: update_shared_values
