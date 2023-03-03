@@ -174,7 +174,7 @@ stages:
   dependsOn: tf_apply
   displayName:  "Setting up Jumphost"
   jobs:
-    - job: setting_up_ips
+    - job: setting_up_jumphost
       variables:
       - group: servchal-keys
       steps:
@@ -215,7 +215,7 @@ stages:
            echo "Copying secure file to a secure location"
            cp  $(jumpserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
-           chown $USER:USER $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
+           chown $USER $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            cp  $(appserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
            rm -f /home/vsts/.ssh/id_rsa
@@ -258,7 +258,7 @@ stages:
       - script: |
            cp  $(jumpserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
-           chown $USER:USER $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
+           chown $USER $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
       - script: |
            jumpip=$(cat jumpserver01-public-ip)
            ssh -i jump_serv_id_rsa azureuser@"${jumpip}" ansible-playbook /home/azureuser/servchal/ansible/playbook.yml --extra-vars ansible_ssh_private_key_file=/home/azureuser/servchal/ansible/app_serv_id_rsa --extra-vars ansible_user=azureuser
