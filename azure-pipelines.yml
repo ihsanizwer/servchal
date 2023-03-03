@@ -219,7 +219,7 @@ stages:
            cp  $(appserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
            rm -f /home/vsts/.ssh/id_rsa
-           cp $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa /home/vsts/.ssh/id_rsa
+           cp $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa /home/vsts/.ssh/id_rsa
 
         displayName: "Creating Key files"
 
@@ -231,12 +231,10 @@ stages:
            echo "ansible_ssh_private_key_file=${jumploc}" >> $(System.DefaultWorkingDirectory)/ansible/ansible.cfg
 
         displayName: "Updating inventory with JumpserverIP"
-      - task: Bash@3
+      - script: |
+            $(System.DefaultWorkingDirectory)/ansible/ansible-playbook -vvvv setupjump.yml --extra-vars="ansible_ssh_private_key_file=$(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa"
         displayName: "Running ansible playbook to setup the jumphost"
-        inputs:
-          targetType: 'inline'
-          script: 'ansible-playbook -vvvv setupjump.yml'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/ansible'
+ 
 
 - stage: deploy_application
   displayName:  "Deploying Application"
