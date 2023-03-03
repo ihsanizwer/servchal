@@ -232,7 +232,7 @@ stages:
         displayName: "Updating inventory with JumpserverIP"
         
       - script: |
-            ansible-playbook -vvvv setupjump.yml --extra-vars="ansible_ssh_private_key_file=jump_serv_id_rsa"
+            ansible-playbook  setupjump.yml --extra-vars="ansible_ssh_private_key_file=jump_serv_id_rsa"
         workingDirectory: $(System.DefaultWorkingDirectory)/ansible
         displayName: "Running ansible playbook to setup the jumphost"
  
@@ -246,21 +246,27 @@ stages:
   jobs:
     - job: deploy_app
       steps:
+      - task: DownloadSecureFile@1
+        name: jumpserverkey
+        inputs:
+          secureFile: 'jump_serv_id_rsa'
       - task: DownloadPipelineArtifact@2
         inputs:
           buildType: 'current'
           artifactName: 'jumpserver01-public-ip'
           targetPath: '$(System.DefaultWorkingDirectory)'
       - script: |
-           jumpip=$(cat jumpserver01-public-ip)
-           echo $JUMPKEY >> $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
+           cp  $(jumpserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
-           ssh -i $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa azureuser@"${jumpip}" ansible-playbook /home/azureuser/servchal/ansible/playbook.yml --extra-vars ansible_ssh_private_key_file=/home/azureuser/servchal/ansible/app_serv_id_rsa --extra-vars ansible_user=azureuser
+           chown $USER:USER $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
+      - script: |
+           jumpip=$(cat jumpserver01-public-ip)
+           ssh -i jump_serv_id_rsa azureuser@"${jumpip}" ansible-playbook /home/azureuser/servchal/ansible/playbook.yml --extra-vars ansible_ssh_private_key_file=/home/azureuser/servchal/ansible/app_serv_id_rsa --extra-vars ansible_user=azureuser
+        workingDirectory: $(System.DefaultWorkingDirectory)/ansible           
     - job: clean_up
       dependsOn: deploy_app
       steps:
        - script: |
-           echo $JUMPKEY >> jump_serv_id_rsa
-           chmod 0400 jump_serv_id_rsa
            jumpip=$(cat jumpserver01-public-ip)
            ssh -i jump_serv_id_rs azureuser@"${jumpip}" rm -rf /home/azureuser/servchal
+         workingDirectory: $(System.DefaultWorkingDirectory)/ansible 
