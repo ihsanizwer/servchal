@@ -260,7 +260,7 @@ stages:
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            chown $USER $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
       - script: |
-           jumpip=$(cat jumpserver01-public-ip)
+           jumpip=$(cat ../jumpserver01-public-ip)
            ssh -i jump_serv_id_rsa azureuser@"${jumpip}" ansible-playbook /home/azureuser/servchal/ansible/playbook.yml --extra-vars ansible_ssh_private_key_file=/home/azureuser/servchal/ansible/app_serv_id_rsa --extra-vars ansible_user=azureuser
         workingDirectory: $(System.DefaultWorkingDirectory)/ansible           
     - job: clean_up
