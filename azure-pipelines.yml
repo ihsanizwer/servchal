@@ -218,7 +218,8 @@ stages:
            chown $USER:USER $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            cp  $(appserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa
-           cp $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa ~/.ssh/id_rsa
+           rm -f /home/vsts/.ssh/id_rsa
+           cp $(System.DefaultWorkingDirectory)/ansible/app_serv_id_rsa /home/vsts/.ssh/id_rsa
 
         displayName: "Creating Key files"
 
