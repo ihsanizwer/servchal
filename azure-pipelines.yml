@@ -230,7 +230,7 @@ stages:
            jumploc="$(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa"
            echo "ansible_ssh_private_key_file=${jumploc}" >> $(System.DefaultWorkingDirectory)/ansible/ansible.cfg
         displayName: "Updating inventory with JumpserverIP"
-        
+      
       - script: |
             ansible-playbook  setupjump.yml --extra-vars="ansible_ssh_private_key_file=jump_serv_id_rsa"
         workingDirectory: $(System.DefaultWorkingDirectory)/ansible
@@ -262,7 +262,7 @@ stages:
       - script: |
            jumpip=$(cat ../jumpserver01-public-ip)
            ssh -o StrictHostKeyChecking=no ${jumpip} || true
-           ssh -i jump_serv_id_rsa azureuser@"${jumpip}" ansible-playbook /home/azureuser/servchal/ansible/playbook.yml --extra-vars ansible_ssh_private_key_file=/home/azureuser/servchal/ansible/app_serv_id_rsa --extra-vars ansible_user=azureuser
+           ssh -i jump_serv_id_rsa azureuser@"${jumpip}" ansible-playbook /home/azureuser/servchal/ansible/playbook.yml --extra-vars ansible_ssh_private_key_file=/home/azureuser/servchal/ansible/app_serv_id_rsa --extra-vars ansible_user=azureuser --playbook-dir /home/azureuser/servchal/ansible/
         workingDirectory: $(System.DefaultWorkingDirectory)/ansible           
     - job: clean_up
       dependsOn: deploy_app
