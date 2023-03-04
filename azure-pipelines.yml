@@ -262,7 +262,7 @@ stages:
       - script: |
            jumpip=$(cat ../jumpserver01-public-ip)
            ssh -o StrictHostKeyChecking=no ${jumpip} || true
-           ssh -i jump_serv_id_rsa azureuser@"${jumpip}" chmod +x execute_play.sh && ./execute_play.sh
+           ssh -i jump_serv_id_rsa azureuser@"${jumpip}" chmod +x servchal/ansible/execute_play.sh && ./servchal/ansible/execute_play.sh
         workingDirectory: $(System.DefaultWorkingDirectory)/ansible           
     - job: clean_up
       dependsOn: deploy_app
