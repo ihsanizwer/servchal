@@ -262,7 +262,7 @@ stages:
       - script: |
            jumpip=$(cat ../jumpserver01-public-ip)
            ssh -o StrictHostKeyChecking=no ${jumpip} || true
-           ssh -i jump_serv_id_rsa azureuser@"${jumpip}" ANSIBLE_CONFIG=/home/azureuser/servchal/ansible/ansible.cfg && cd /home/azureuser/servchal/ansible;ansible-playbook playbook.yml --extra-vars ansible_ssh_private_key_file=app_serv_id_rsa --extra-vars ansible_user=azureuser --inventory-file /home/azureuser/servchal/ansible/inventory
+           ssh -i jump_serv_id_rsa azureuser@"${jumpip}" chmod +x execute_play.sh && ./execute_play.sh
         workingDirectory: $(System.DefaultWorkingDirectory)/ansible           
     - job: clean_up
       dependsOn: deploy_app
