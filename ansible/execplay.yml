@@ -1,0 +1,12 @@
+---
+- name: Playbook to execute app deploy playbook in Jumphost
+  hosts: all
+  tasks:
+    - name: Run playbook in the jumphost
+      shell:
+        cmd: "ANSIBLE_CONFIG=/home/azureuser/servchal/ansible/ansible.cfg;ansible-playbook playbook.yml --extra-vars ansible_ssh_private_key_file=app_serv_id_rsa --extra-vars ansible_user=azureuser --inventory-file inventory"
+        chdir: /home/azureuser/servchal/ansible
+      register: exec_output
+    - name: Printing the output of the execution
+      debug:
+        var: exec_output.stdout_lines
