@@ -254,22 +254,22 @@ stages:
         inputs:
           buildType: 'current'
           artifactName: 'jumpserver01-public-ip'
-          targetPath: '$(System.DefaultWorkingDirectory)'
+          targetPath: '$(System.DefaultWorkingDirectory)/ansible'
       - script: |
            cp  $(jumpserverkey.secureFilePath) $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            chmod 0400 $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
            chown $USER $(System.DefaultWorkingDirectory)/ansible/jump_serv_id_rsa
       - script: |
-           jumpip=$(cat ../jumpserver01-public-ip)
+           jumpipfile=$(System.DefaultWorkingDirectory)/ansible/jumpserver01-public-ip
+           jumpip=$(cat ${jumpipfile})
            ssh -o StrictHostKeyChecking=no ${jumpip} || true
            echo "[jumphosts]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
            echo "${jumpip} ansible_user=azureuser">> $(System.DefaultWorkingDirectory)/ansible/inventory
            ansible-playbook  execplay.yml -i ${jumpip} --extra-vars="ansible_ssh_private_key_file=jump_serv_id_rsa"
         workingDirectory: $(System.DefaultWorkingDirectory)/ansible           
-    - job: clean_up
-      dependsOn: deploy_app
-      steps:
-       - script: |
-           jumpip=$(cat jumpserver01-public-ip)
-           ssh -i jump_serv_id_rs azureuser@"${jumpip}" rm -rf /home/azureuser/servchal
-         workingDirectory: $(System.DefaultWorkingDirectory)/ansible 
+      - script: |
+           jumpipfile=$(System.DefaultWorkingDirectory)/ansible/jumpserver01-public-ip
+           jumpip=$(cat ${jumpipfile})
+           ssh -i jump_serv_id_rsa azureuser@"${jumpip}" rm -rf /home/azureuser/servchal
+        workingDirectory: $(System.DefaultWorkingDirectory)/ansible 
+        displayName: "Cleaning up"
