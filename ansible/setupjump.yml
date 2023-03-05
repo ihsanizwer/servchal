@@ -47,3 +47,7 @@
       with_items: "{{ appserver_ips }}"
       ignore_errors: true
 
+    - name: Set up alias for runnning the playbook later
+      shell:
+        cmd: "chmod +x /home/azureuser/servchal/ansible/execute_play.sh && echo 'alias execplay=/home/azureuser/servchal/ansible/execute_play.sh' >> /home/azureuser/.bashrc"
+
