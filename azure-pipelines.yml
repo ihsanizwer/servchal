@@ -262,8 +262,9 @@ stages:
       - script: |
            jumpip=$(cat ../jumpserver01-public-ip)
            ssh -o StrictHostKeyChecking=no ${jumpip} || true
-           chmod +x execute_play.sh
-           ls -lrth
+           echo "[jumphosts]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
+           jumpip=$(cat jumpserver01-public-ip) 
+           echo "${jumpip} ansible_user=azureuser">> $(System.DefaultWorkingDirectory)/ansible/inventory
            ansible-playbook  execplay.yml -i ${jumpip} --extra-vars="ansible_ssh_private_key_file=jump_serv_id_rsa"
         workingDirectory: $(System.DefaultWorkingDirectory)/ansible           
     - job: clean_up
