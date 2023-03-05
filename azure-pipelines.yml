@@ -265,7 +265,7 @@ stages:
            ssh -o StrictHostKeyChecking=no ${jumpip} || true
            echo "[jumphosts]" >> $(System.DefaultWorkingDirectory)/ansible/inventory
            echo "${jumpip} ansible_user=azureuser">> $(System.DefaultWorkingDirectory)/ansible/inventory
-           ansible-playbook  execplay.yml -i ${jumpip} --extra-vars="ansible_ssh_private_key_file=jump_serv_id_rsa"
+           ansible-playbook  execplay.yml -i ${jumpip} --extra-vars="ansible_ssh_private_key_file=jump_serv_id_rsa" --inventory-file="inventory"
         workingDirectory: $(System.DefaultWorkingDirectory)/ansible           
       - script: |
            jumpipfile=$(System.DefaultWorkingDirectory)/ansible/jumpserver01-public-ip
