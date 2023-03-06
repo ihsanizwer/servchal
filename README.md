@@ -1,13 +1,14 @@
 # servchal
 This is a repo created to submit my code and solution for a technical challenge. Below is the architecuture of the infra provisioned using terraform. The deployment code for the application will be added shortly. The application is set to run on 2 availability zones with loadbalancing. App is set to run as a Linux service which will attempt to restart in case of failiure. The /debug directory access has been limited to the internal environment for security reasons. It could be accessed from http://localhost:3000/debug after login in to the appserver.
-![image](https://user-images.githubusercontent.com/19792463/221649882-8d635ed6-04ee-4fde-8a80-ee64ba4dfd89.png)
+![architecture (1)](https://user-images.githubusercontent.com/19792463/222996093-635cfc72-eeac-4fc1-a379-40074fbf7ab8.jpg)
+
 
 # About
 Technologies used for this project.
 Ansible - Several Playbooks used for configuration management
 Terraform - IaC platform used. Modules created and used to create the VMs.
 NGINX - Used as a web proxy. Disabling access to the /debug externally and internally from port 80. (can be checked locally from http://localhost:3000/debug)
-OS - RedHat Linux and Ubuntu
+OS - RedHat Linux and Ubuntu 
 Microsoft Azure 
 - Application Gateways with loadbalancing and healthcheks
 - VMs Deployed to several Availability Zones within the region to enable HA.
@@ -35,7 +36,7 @@ After creating them, upload the secret key file there and grant permissions to t
 6. Once done, go to the loadbalancers in Azure, select Application Gateway and copy and open the public IP on a browser.
 
 # Improvements / Changes for the future
-This was created with a simple use case in mind(where the traffic is generally uniform(For example B2B engagement where the customer is another business). Suppose we are to cater a different audience(for example B2C like an Ecommerce application), then we would have to consider using a VMSS or an AKS cluster as per the requirement. How the keys are used could improve a bit(Although it is already quite safe). We could integrate Azure pipelines with Azure Key vaults. I haven't had the time to name all the resources 100% to convention, so that is also something to look at. Using CDNs in front of the Application gateway has its benefits and should be considered. There needs to be an output in the pipeline with the IP address of the loadbalancer.Or DNS should also be set up. Also from a pipeline perspective, there needs to be a replacetoken step to read from variables and update cofig files(conf.toml for example). Better naming for the pipeline steps/tasks
+This was created with a simple use case in mind(where the traffic is generally uniform(For example B2B engagement where the customer is another business). Suppose we are to cater a different audience(for example B2C like an Ecommerce application), then we would have to consider using a VMSS or an AKS cluster as per the requirement. How the keys are used could improve a bit(Although it is already quite safe). We could integrate Azure pipelines with Azure Key vaults. I haven't had the time to name all the resources 100% to convention, so that is also something to look at. Using CDNs in front of the Application gateway has its benefits and should be considered. There needs to be an output in the pipeline with the IP address of the loadbalancer.Or DNS should also be set up. Also from a pipeline perspective, there needs to be a replacetoken step to read from variables and update cofig files(conf.toml for example). Better naming for the pipeline steps/tasks. Usage of SSL certs and only having port 443(instead of port 80) open to the internet. SSL termination can happen in the Application Gateway
 
 # How to run (Fallback method)
 This needs to be done in a semi-automated fasion if the AzureDevOps pipeline written has issues(which ideally shouldn't be the case).
